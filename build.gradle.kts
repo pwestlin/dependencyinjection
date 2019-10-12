@@ -21,19 +21,19 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+    }
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
 
 idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
-    }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-Xjsr305=strict")
     }
 }

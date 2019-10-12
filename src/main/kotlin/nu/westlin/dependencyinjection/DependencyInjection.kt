@@ -4,12 +4,28 @@ package nu.westlin.dependencyinjection
 class DIContext {
     private val beans: ArrayList<Any> = ArrayList()
 
-    fun register(bean: Any) {
+    inline fun <reified T> register() {
         // TODO petves: Stop bean from being Kotlin API types (String etc)
 
-        beans.firstOrNull { it::class == bean::class }?.let { throw RuntimeException("Bean of type ${bean::class} already exist") }
-        beans.add(bean)
+        beans.firstOrNull { it::class == T::class }
+            ?.let { throw RuntimeException("Bean of type ${T::class} already exist") }
+        beans.add(createBean<T>() as Any)
     }
 
-    inline fun <reified T> get(): Any? = beans.firstOrNull { it::class == T::class }
+    private inline fun <reified T>  createBean(): T {
+        val c = T::class.constructors.first { it.parameters.isEmpty() }
+        return c.call()
+    }
+
+    inline fun <reified T> get(): T? = beans.firstOrNull { it::class == T::class } as T?
 }
+
+class BeansDSL {
+    private val beans = ArrayList<Any>()
+
+    fun bean(bean: Any.() -> Unit) {
+        bean()
+    }
+}
+
+fun beans(block: BeansDSL.() -> Unit) = BeansDSL().apply(block)

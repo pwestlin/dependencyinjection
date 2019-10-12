@@ -10,35 +10,25 @@ internal class DIContextTest {
     private class Bar
 
     @Test
-    fun `add a bean that already exist - same bean`() {
+    fun `register a bean that already exist - same bean`() {
         val foo = Foo()
 
         val ctx = DIContext()
-        ctx.add(foo)
+        ctx.register(foo)
 
-        assertThatThrownBy { ctx.add(foo) }
+        assertThatThrownBy { ctx.register(foo) }
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Bean ${foo::class.simpleName} already exist")
+            .hasMessage("Bean of type ${foo::class} already exist")
     }
 
     @Test
-    fun `add a bean that already exist - another bean with same type`() {
+    fun `register a bean that already exist - another bean with same type`() {
         val ctx = DIContext()
-        ctx.add(Foo())
+        ctx.register(Foo())
 
-        assertThatThrownBy { ctx.add(Foo()) }
+        assertThatThrownBy { ctx.register(Foo()) }
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Bean ${Foo::class.simpleName} already exist")
-    }
-
-    @Test
-    fun `get bean by name`() {
-        val foo = Foo()
-
-        val ctx = DIContext()
-        ctx.add(foo)
-
-        assertThat(ctx.get(foo::class.simpleName!!)).isEqualTo(foo)
+            .hasMessage("Bean of type ${Foo::class} already exist")
     }
 
     @Test
@@ -46,7 +36,7 @@ internal class DIContextTest {
         val foo = Foo()
 
         val ctx = DIContext()
-        ctx.add(foo)
+        ctx.register(foo)
 
         assertThat(ctx.get<Foo>()).isEqualTo(foo)
     }
@@ -56,7 +46,7 @@ internal class DIContextTest {
         val foo = Foo()
 
         val ctx = DIContext()
-        ctx.add(foo)
+        ctx.register(foo)
 
         assertThat(ctx.get<Bar>()).isNull()
     }

@@ -12,20 +12,16 @@ class DIContext {
         beans.add(createBean<T>() as Any)
     }
 
-    private inline fun <reified T>  createBean(): T {
-        val c = T::class.constructors.first { it.parameters.isEmpty() }
-        return c.call()
-    }
-
     inline fun <reified T> get(): T? = beans.firstOrNull { it::class == T::class } as T?
-}
 
-class BeansDSL {
-    private val beans = ArrayList<Any>()
-
-    fun bean(bean: Any.() -> Unit) {
-        bean()
+    inline fun <reified T> bean() {
+        beans.add(createBean<T>() as Any)
     }
 }
 
-fun beans(block: BeansDSL.() -> Unit) = BeansDSL().apply(block)
+private inline fun <reified T>  createBean(): T {
+    val c = T::class.constructors.first { it.parameters.isEmpty() }
+    return c.call()
+}
+
+fun beans(block: DIContext.() -> Unit) = DIContext().apply(block)

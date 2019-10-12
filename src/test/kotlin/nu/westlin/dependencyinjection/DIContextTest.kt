@@ -9,6 +9,7 @@ internal class DIContextTest {
 
     class Foo
     class Bar
+    class Foobar
 
     private lateinit var ctx: DIContext
 
@@ -36,5 +37,17 @@ internal class DIContextTest {
     @Test
     fun `get bean by reified type - not found`() {
         assertThat(ctx.get<Bar>()).isNull()
+    }
+
+    @Test
+    fun `create beans with DSL`() {
+        beans {
+            bean<Foo>()
+            bean<Bar>()
+        }.let { beans ->
+            assertThat(beans.get<Foo>()).isInstanceOf(Foo::class.java)
+            assertThat(beans.get<Bar>()).isInstanceOf(Bar::class.java)
+            assertThat(beans.get<Foobar>()).isNull()
+        }
     }
 }

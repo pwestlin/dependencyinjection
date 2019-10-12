@@ -5,17 +5,35 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-internal class DIContextTest {
+
+class DIContextTest {
 
     class Foo
     class Bar
-    class Foobar
+    class Foobar(private val foo: Foo)
 
     private lateinit var ctx: DIContext
 
     @BeforeEach
     private fun init() {
         ctx = DIContext()
+    }
+
+    @Test
+    fun `register a bean with dependency that exist`() {
+        ctx.register<Foo>()
+        ctx.register<Foobar>()
+
+        assertThat(ctx.get<Foobar>()).isInstanceOf(Foobar::class.java)
+    }
+
+    @Test
+    fun `register a bean with dependency that does not exist`() {
+        assertThatThrownBy {
+            ctx.register<Foobar>()
+        }
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context")
     }
 
     @Test
@@ -49,5 +67,24 @@ internal class DIContextTest {
             assertThat(beans.get<Bar>()).isInstanceOf(Bar::class.java)
             assertThat(beans.get<Foobar>()).isNull()
         }
+    }
+
+    @Test
+    fun `DSL - create a bean that has a dependency to another bean`() {
+        beans {
+            bean<Foo>()
+            bean<Foobar>()
+        }
+    }
+
+    @Test
+    fun `DSL - create a bean that has a dependency to another bean that is missing`() {
+        assertThatThrownBy {
+            beans {
+                bean<Foobar>()
+            }
+        }
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context")
     }
 }

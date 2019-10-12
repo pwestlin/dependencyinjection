@@ -5,14 +5,14 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-
 class DIContextTest {
+
+    private lateinit var ctx: DIContext
 
     class Foo
     class Bar
+    @Suppress("unused")
     class Foobar(private val foo: Foo)
-
-    private lateinit var ctx: DIContext
 
     @BeforeEach
     private fun init() {
@@ -33,7 +33,7 @@ class DIContextTest {
             ctx.register<Foobar>()
         }
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context")
+            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context for ${Foobar::class}")
     }
 
     @Test
@@ -85,6 +85,7 @@ class DIContextTest {
             }
         }
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context")
+            .hasMessage("Dependency of type ${Foo::class.qualifiedName} is missing in context for ${Foobar::class}")
     }
 }
+

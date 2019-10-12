@@ -1,6 +1,6 @@
 package nu.westlin.dependencyinjection
 
-@Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
+@Suppress("NON_PUBLIC_CALL_FROM_PUBLIC_INLINE", "RemoveCurlyBracesFromTemplate")
 class DIContext {
     private val beans: ArrayList<Any> = ArrayList()
 
@@ -21,11 +21,15 @@ class DIContext {
     }
 
     private inline fun <reified T> createBeanWithDependecies(): T {
+        println("T::class = ${T::class}")
         require(T::class.constructors.size == 1) { "Type ${T::class} has more than one constructor" }
         val ctor = T::class.constructors.first()
+        println("ctor = ${ctor}")
+        println("ctor.parameters = ${ctor.parameters}")
         val params = ctor.parameters.map { param ->
+            println("param = ${param}")
             beans.firstOrNull { it::class.qualifiedName == param.type.toString() }
-                ?: throw RuntimeException("Dependency of type ${param.type} is missing in context")
+                ?: throw RuntimeException("Dependency of type ${param.type} is missing in context for ${T::class}")
         }
 
         return ctor.call(*params.toTypedArray())

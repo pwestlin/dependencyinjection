@@ -21,11 +21,8 @@ class DIContext {
     }
 
     private inline fun <reified T> createBeanWithDependecies(): T {
-        println("T::class = ${T::class}")
         require(T::class.constructors.size == 1) { "Type ${T::class} has more than one constructor" }
         val ctor = T::class.constructors.first()
-        println("ctor = ${ctor}")
-        println("ctor.parameters = ${ctor.parameters}")
         val params = ctor.parameters.map { param ->
             println("param = ${param}")
             beans.firstOrNull { it::class.qualifiedName == param.type.toString() }

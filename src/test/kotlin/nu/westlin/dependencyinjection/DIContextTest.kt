@@ -13,6 +13,8 @@ class DIContextTest {
     class Bar
     @Suppress("unused")
     class Foobar(private val foo: Foo)
+    @Suppress("unused")
+    class Barfoo(private val bar: Bar, private val foo: Foo)
 
     @BeforeEach
     private fun init() {
@@ -25,6 +27,25 @@ class DIContextTest {
         ctx.register<Foobar>()
 
         assertThat(ctx.get<Foobar>()).isInstanceOf(Foobar::class.java)
+    }
+
+    @Test
+    fun `register a bean with dependencies that exist`() {
+        ctx.register<Foo>()
+        ctx.register<Bar>()
+        ctx.register<Barfoo>()
+
+        assertThat(ctx.get<Barfoo>()).isInstanceOf(Barfoo::class.java)
+    }
+
+    @Test
+    fun `register a bean with one dependency that exist and one that does not`() {
+        ctx.register<Foo>()
+        assertThatThrownBy {
+            ctx.register<Barfoo>()
+        }
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Dependency of type ${Bar::class.qualifiedName} is missing in context for ${Barfoo::class}")
     }
 
     @Test
